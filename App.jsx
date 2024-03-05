@@ -43,25 +43,49 @@ export default function App() {
         return () => clearTimeout (timeoutId)
     }, [tempNoteText])
 
-    function createNewNote() {
+    async function createNewNote() {
         const newNote = {
-            body: "# Type your markdown note's title here",
-            createdAt: Date.now(),
-            updatedAt: Date.now()
+          body: "# Type your markdown note's title here",
+          createdAt: Date.now(),
+          updatedAt: Date.now(),
+        };
+      
+        try {
+          const newNoteRef = await addDoc(notesCollection, newNote);
+          setCurrentNoteId(newNoteRef.id);
+        } catch (error) {
+          // Handle any errors that might occur during the asynchronous operation
+          console.error("Error creating a new note:", error);
         }
-        const newNoteRef = await addDoc(notesCollection, newNote)
-        setCurrentNoteId(newNoteRef.id)
-    }
+      }
+      
+      // Call the async function
+      createNewNote();
 
-    function updateNote(text) {
-        const docRef = doc(db, "notes", currentNoteId)   
-        await setDoc(docRef, {body: text, updatedAt: Date.now()}, {merge: true})
-    }
+      async function updateNote(text) {
+        const docRef = doc(db, "notes", currentNoteId);
+      
+        try {
+          await setDoc(docRef, { body: text, updatedAt: Date.now() }, { merge: true });
+        } catch (error) {
+          // Handle any errors that might occur during the asynchronous operation
+          console.error("Error updating the note:", error);
+        }
+      }
+      
+      // Call the async function
+      updateNote("New text for the note");
 
-    function deleteNote(noteId) {
-        const docRef = doc(db, "notes", noteId)
-        await deleteDoc(docRef)
-    }
+      async function deleteNote(noteId) {
+        const docRef = doc(db, "notes", noteId);
+      
+        try {
+          await deleteDoc(docRef);
+        } catch (error) {
+          // Handle any errors that might occur during the asynchronous operation
+          console.error("Error deleting the note:", error);
+        }
+      }
 
     return (
         <main>
